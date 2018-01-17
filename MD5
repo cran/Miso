@@ -1,0 +1,15 @@
+46f25a56e51905bf488c23c4336c7a96 *DESCRIPTION
+8359ca387b49dab8fcef51840d593ca0 *NAMESPACE
+a29ee46b40ccffeac29ec94e4878e312 *R/Fresult.R
+43f5c9b5750c8a4d5687eca76be5b2f8 *R/Rresult.R
+cf2e11628d5028b0848d4bf224aa0185 *R/diso.R
+5d4aebe5c2f666c1b693036974751138 *R/lcms.R
+35afc1dc8cd038578f4f75a892ef494c *R/prefilter.R
+807754e725c44b600676c75d1b6c8c80 *R/sysdata.rda
+4218b81ab3db25e1ca600658eb22e0e0 *data/datalist
+665679b7928064995b84564ffe6b639d *data/lcms.rda
+814245e21157c390af11b175d1e4283d *man/Fresult.Rd
+57283434a55b78eb0537ecba95c88b55 *man/Rresult.Rd
+6b9f9019c487d9e56075398ecdcc5d22 *man/diso.Rd
+1e31357c69deb3269b1940c32c9783f9 *man/lcms.Rd
+802a9a5a53d64b765a8fe4d4c3d9fe8d *man/prefilter.Rd
