@@ -26,7 +26,7 @@ prefilter <- function(peaklist, cutint = 0, nsam = 2, minsam = 1){
   # check minsam
   if(!is.numeric(minsam)){stop("invalid calss of minsam - not numeric")}
   if(length(minsam) != 1 & length(minsam) != 5){stop("invalid length of minsam, either 1 or 5")}
-  if(min(minsam) <= 0){stop("nsam should be over than 0")}
+  if(min(minsam) < 0){stop("nsam should be no less than 0")}
   if(any(minsam %% 1 != 0)){stop("minsam should be integer")}
   # make sure minsam is no over than nsam
   # experiment number in each experiment group
@@ -42,7 +42,7 @@ prefilter <- function(peaklist, cutint = 0, nsam = 2, minsam = 1){
     min_sam = minsam
   }
   if(any(nsam >= minsam) == F){stop("minsam should be no over than nsam")}
-  cat("done.");
+  cat("done");
   cat("\n(2) Performing the first filtering...");
   # experiment number in each experiment group
   if(length(nsam) == 1){
@@ -121,6 +121,6 @@ prefilter <- function(peaklist, cutint = 0, nsam = 2, minsam = 1){
 
     exp_list <- list(exp.B = exp.B, exp.C = exp.C, exp.D = exp.D)
   }
-  cat("done.");
+  cat("done");
   return(exp_list)
 }
