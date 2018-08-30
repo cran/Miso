@@ -44,17 +44,17 @@ prefilter2 <- function(peak, nsam = 2, p = 0.05, fold = 10){
   peaklist_new <- C[(C$group %in% c("B", "C", "D")),]
 
   ##(3) calculating fold change
-  cat("\n(3) Calculating fold change...");
+  cat("\n(2) Calculating fold change...");
   ret <- fold(peaklist_new[, -dim(peaklist_new)[2]], peaklist_new$group)
   cat("done");
 
   ##(4) statistical test
-  cat("\n(4) Performing statistical test...");
+  cat("\n(3) Performing statistical test...");
   output <- getp(peaklist_new)
   cat("done");
 
   ##(5) perform the first filter
-  cat("\n(5) Performing the first filtering...");
+  cat("\n(4) Performing the first filtering...");
 
   ## extract the index in which either p is less than the p-value threshold or fold change
   ## is higher than the fold change threshold
@@ -68,12 +68,9 @@ prefilter2 <- function(peak, nsam = 2, p = 0.05, fold = 10){
   peaklistB <- peaklist[peaklist$B > 0, ]
   peaklistC <- peaklist[c_index, ]
   peaklistD <- peaklist[d_index, ]
-  exp.B <- cbind.data.frame(mz = peaklistB$mz, intensity = peaklistB[, (13 + each_exp[1])],
-                            rt = peaklistB$rt)
-  exp.C <- cbind.data.frame(mz = peaklistC$mz, intensity = peaklistC[, (13 + sum(each_exp[1:2]))],
-                            rt = peaklistC$rt)
-  exp.D <- cbind.data.frame(mz = peaklistD$mz, intensity = peaklistD[, (13 + sum(each_exp[1:3]))],
-                            rt = peaklistD$rt)
+  exp.B <- cbind.data.frame(mz = peaklistB$mz, intensity = ret[peaklist$B > 0, ]$B, rt = peaklistB$rt)
+  exp.C <- cbind.data.frame(mz = peaklistC$mz, intensity = ret[c_index, ]$C, rt = peaklistC$rt)
+  exp.D <- cbind.data.frame(mz = peaklistD$mz, intensity = ret[d_index, ]$D, rt = peaklistD$rt)
   stat <- cbind.data.frame(peaklist[, c(1:6)], output, ret)
   exp_list <- list(exp.B = exp.B, exp.C = exp.C, exp.D = exp.D, stat = stat)
   cat("done");
