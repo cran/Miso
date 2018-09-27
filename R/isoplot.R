@@ -1,13 +1,13 @@
 #' @title plot isotopologues
 #' @description plot unlabled and labeled Isotopologues from filtering result
-#' @param dat isoto filtering result
+#' @param dat isotope filtering result
 #' @param rinx row index
 #' @import plotly
 #' @return interactive plot
 #' @export
 #' @examples
 #' data(lcms)
-#' explist <- prefilter(lcms[1: 100, ]) # use a subset of lcms data as example
+#' explist <- prefilter(lcms[1: 500, ]) # use a subset of lcms data as example
 #' exp.B <- explist$exp.B
 #' exp.C <- explist$exp.C
 #' exp.D <- explist$exp.D
