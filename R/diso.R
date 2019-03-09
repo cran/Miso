@@ -10,20 +10,21 @@
 #' @param exp.iso isotope labeled group.
 #' @param ppm m/z tolarance, default value 30.
 #' @param rt.dif retention time tolarance, default value 6 seconds.
+#' @param poly polymer of the feeding precursor derived metabolites, e.g. dimer poly = 2, trimer poly =3, default value 1.
 #' @return results containing unlabled and their corresponding labled analytes, with RT and labeling information.
 #' @export
 #' @examples
 #' data(lcms)
-#' explist <- prefilter(lcms[1: 100, ]) # use a subset of lcms data as example
-#' exp.B <- explist$exp.B
-#' exp.C <- explist$exp.C
-#' exp.D <- explist$exp.D
+#' explist <- prefilter(lcms, subgroup = c("B", "C", "D"), unlabel = "B")
+#' exp.B <- explist$B
+#' exp.C <- explist$C
+#' exp.D <- explist$D
 #' iso.C <- diso(iso1 = 'H2', n11 = 4, n12 = 2, exp.base = exp.B, exp.iso = exp.C)
 #' iso.D <- diso(iso1 = 'C13', n11 = 9, n12 = 6, iso2 = 'N15', n21 = 1, n22 = 0,
 #' exp.base = iso.C[,1:3], exp.iso = exp.D)
 
 diso <- function(iso1, n11, n12, iso2 = 'NO', n21 = 0, n22 = 0, exp.base,
-                     exp.iso, ppm = 10, rt.dif = 6) {
+                     exp.iso, ppm = 10, rt.dif = 6, poly = 1) {
   # check the input variables
   cat("\n(1) Checking input parameters...");
   element <- isoDB$element
@@ -35,12 +36,14 @@ diso <- function(iso1, n11, n12, iso2 = 'NO', n21 = 0, n22 = 0, exp.base,
   if(!is.numeric(n22)) {stop('n22 is not numeric')}
   if (n11 < n12) {stop('The argument "n11" must be no less than "n12"' )}
   if (n21 < n22) {stop('The argument "n21" must be no less than "n22"' )}
+  if (poly <= 0) {stop('poly should be >= 1')}
+  if (poly %% 1 != 0) {stop('poly should be integer')}
   cat("done");
 
   cat("\n(2) Preparing datacube...");
   # prepare the labelling pattern according to the feeding precusor. iso2 is 0 by default.
-  pattern1 <- seq(n11, n12, by = -1)
-  pattern2 <- seq(n21, n22, by = -1)
+  pattern1 <- seq(n11, n12, by = -1) * poly
+  pattern2 <- seq(n21, n22, by = -1) * poly
   mass_dif1 <- isoDB$mass_dif[match(iso1, isoDB$element)]
   mass_dif2 <- isoDB$mass_dif[match(iso2, isoDB$element)]
   iso.pattern1 <- mass_dif1 * pattern1
@@ -67,31 +70,38 @@ diso <- function(iso1, n11, n12, iso2 = 'NO', n21 = 0, n22 = 0, exp.base,
 
   ## prepare data frame
   C.dframe <- do.call(rbind.data.frame, C)
-  z_charge <- rep(pattern, rep(dim(exp.iso)[1],length(A)))
+  z_charge <- rep(pattern, rep(dim(exp.iso)[1], length(A)))
   mz_dif <- rep(A, rep(dim(exp.iso)[1],length(A)))
   C.dframe <- cbind(C.dframe, z_charge, mz_dif)
   cat("done");
 
   cat("\n(3) Performing the 2ed filtering...");
   # select real isotope labeled peaks according to accepted ppm and RT ranges
-  expand.grid.df <- function(...) Reduce(function(...) merge(..., by=NULL),
-                                         list(...))
+  expand.grid.df <- function(...) Reduce(function(...) merge(..., by = NULL), list(...))
   CB.expand <- expand.grid.df(exp.base, C.dframe)
-  colnames(CB.expand) <-c('B.mz', 'B.intensity', 'B.rt', 'iso1.mz', 'iso1.intensity','iso1.rt',
+  ## name CB.expand according to feeding pattern
+  if(iso2 == "NO") {
+    iso2 = ""
+  } else {
+    iso2 = iso2
+  }
+  colnames(CB.expand) <-c(paste("B.", c("mz", "rt", "intensity"), sep = ""),
+                          paste(iso1, iso2, ".", c("mz", "rt", "intensity"), sep = ""),
                           'charge', 'mz_dif')
-
   ## calculate real ppm
-  abs.mz = with(CB.expand, abs(iso1.mz - B.mz) * 10^6 / B.mz)
+  iso_mz <- paste(iso1, iso2, ".", "mz", sep = "")
+  abs.mz = with(CB.expand, abs(CB.expand[iso_mz] - B.mz) * 10^6 / B.mz)
 
   ## calculate RT dufference
-  abs.rt = with(CB.expand, abs(iso1.rt - B.rt))
+  iso_rt <- paste(iso1, iso2, ".", "rt", sep = "")
+  abs.rt = with(CB.expand, abs(CB.expand[iso_rt] - B.rt))
 
   ## select the peaks in our acceprance range
   Result = CB.expand[(abs.mz <= ppm & abs.rt <= rt.dif),]
 
   ## prepare the result
-  Result$iso1.mz = Result$iso1.mz + Result$mz_dif
-  Result = Result[, -length(Result)]
+  Result[iso_mz] = Result[iso_mz] + Result$mz_dif
+  Result$mz_dif = NULL
   cat("done");
   return(Result)
 }

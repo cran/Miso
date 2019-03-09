@@ -3,11 +3,10 @@
 
 Miso: Multi-Isotope Labeling for Metabolomics Analysis
 
-Version: 0.1.4
 
 ## Description
 
-- An efficient approach for fishing out the dual or multiple isotope labeling assisted metabolomics data analytes
+- An efficient tool for fishing out labeled molecules from single, dual or multiple isotope labeling experiment.
 
 
 ## Usage
